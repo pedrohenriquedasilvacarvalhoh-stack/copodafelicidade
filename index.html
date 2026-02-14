@@ -77,6 +77,7 @@ button:hover {
 🍓 Copo da Felicidade 🍫
 </header>
 
+<!-- TELA PRINCIPAL -->
 <div class="container" id="pedidoArea">
     <h2>Faça seu Pedido</h2>
 
@@ -100,17 +101,20 @@ button:hover {
     <button onclick="mostrarLogin()">Área do Administrador</button>
 </div>
 
+<!-- LOGIN ADM -->
 <div class="container hidden" id="loginArea">
     <h2>Login Administrador</h2>
     <input type="text" id="usuario" placeholder="Usuário">
     <input type="password" id="senha" placeholder="Senha">
     <button onclick="fazerLogin()">Entrar</button>
+    <button onclick="voltarInicio()">Voltar</button>
 </div>
 
+<!-- ÁREA ADM -->
 <div class="container hidden" id="adminArea">
     <h2>Pedidos Recebidos</h2>
     <div id="listaPedidos"></div>
-    <button onclick="voltar()">Voltar</button>
+    <button onclick="voltarInicio()">Sair</button>
 </div>
 
 <footer>
@@ -173,12 +177,14 @@ function carregarPedidos() {
     });
 }
 
-function voltar() {
+function voltarInicio() {
     document.getElementById("adminArea").classList.add("hidden");
+    document.getElementById("loginArea").classList.add("hidden");
     document.getElementById("pedidoArea").classList.remove("hidden");
 }
 </script>
 
 </body>
 </html>
+
 
