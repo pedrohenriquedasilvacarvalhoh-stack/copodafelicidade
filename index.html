@@ -165,17 +165,29 @@ function carregarPedidos() {
 
     let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
 
-    pedidos.forEach(p => {
+    pedidos.forEach((p, index) => {
         lista.innerHTML += `
             <div class="pedido">
                 <strong>Nome:</strong> ${p.nome}<br>
                 <strong>Sabor:</strong> ${p.sabor}<br>
                 <strong>Quantidade:</strong> ${p.quantidade}<br>
-                <strong>WhatsApp:</strong> ${p.whatsapp}
+                <strong>WhatsApp:</strong> ${p.whatsapp}<br>
+                <button onclick="removerPedido(${index})">✔ Pedido Feito</button>
             </div>
         `;
     });
 }
+
+    function removerPedido(index) {
+    let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+
+    pedidos.splice(index, 1);
+
+    localStorage.setItem("pedidos", JSON.stringify(pedidos));
+
+    carregarPedidos();
+}
+
 
 function voltarInicio() {
     document.getElementById("adminArea").classList.add("hidden");
