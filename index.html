@@ -25,7 +25,7 @@ header {
     margin: 30px auto;
     background: white;
     width: 90%;
-    max-width: 500px;
+    max-width: 900px;
     padding: 25px;
     border-radius: 15px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
@@ -72,6 +72,40 @@ button:hover { background-color: #e84118; }
     font-weight: bold;
     color: #e84118;
 }
+
+.flex-area {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.lado-foto {
+    flex: 1;
+    min-width: 200px;
+}
+
+.lado-pedido {
+    flex: 1;
+    min-width: 250px;
+}
+
+.frase {
+    font-weight: bold;
+    color: #ff4757;
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.flex-area {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+
 </style>
 </head>
 
@@ -79,25 +113,29 @@ button:hover { background-color: #e84118; }
 
 <header>🍓 Copo da Felicidade 🍫</header>
 
-<div class="container">
-<h2>Sobre o Produto</h2>
-<p>
-Camadas de bolo fofinho, creme especial, chocolate e morangos frescos 🍓✨
-Perfeito para adoçar seu dia!
-</p>
+<div class="container" id="pedidoArea">
 
+<div class="flex-area">
+
+<div class="lado-foto">
 <img src="copo1.png">
 <img src="copo2.png">
+
+
 </div>
 
-<!-- PEDIDO -->
-<div class="container" id="pedidoArea">
+<div class="lado-pedido">
+
+<p class="frase">
+✨ Uma explosão de sabor em cada colherada! ✨
+</p>
+
 <h2>Faça seu Pedido</h2>
 
 <form onsubmit="salvarPedido(event)">
 <input type="text" id="nome" placeholder="Seu nome" required>
 
-<select id="sabor" required>
+<select id="sabor" required onchange="calcularTotal()">
 <option value="">Escolha o sabor</option>
 <option value="15">Morango - R$15</option>
 <option value="16">Chocolate - R$16</option>
@@ -116,7 +154,25 @@ Total: R$ <span id="valorTotal">0</span>
 </form>
 
 <button onclick="mostrarLogin()">Área do Administrador</button>
+
+<!-- AVALIAÇÕES -->
+<div class="container">
+<h2>Avaliações</h2>
+
+<input type="text" id="nomeAvaliacao" placeholder="Seu nome">
+<textarea id="comentario" placeholder="Deixe sua avaliação"></textarea>
+<button onclick="salvarAvaliacao()">Enviar</button>
+
+<div id="listaAvaliacoes"></div>
 </div>
+
+</div>
+</div>
+
+</div>
+
+
+
 
 <!-- LOGIN -->
 <div class="container hidden" id="loginArea">
@@ -139,16 +195,7 @@ Total: R$ <span id="valorTotal">0</span>
 <button onclick="voltar()">Voltar</button>
 </div>
 
-<!-- AVALIAÇÕES -->
-<div class="container">
-<h2>Avaliações</h2>
 
-<input type="text" id="nomeAvaliacao" placeholder="Seu nome">
-<textarea id="comentario" placeholder="Deixe sua avaliação"></textarea>
-<button onclick="salvarAvaliacao()">Enviar</button>
-
-<div id="listaAvaliacoes"></div>
-</div>
 
 <script>
 
@@ -184,28 +231,50 @@ document.getElementById("valorTotal").innerText = "0";
 
 // LOGIN
 function mostrarLogin() {
-document.getElementById("pedidoArea").classList.add("hidden");
+document.querySelectorAll(".container").forEach(c => c.classList.add("hidden"));
 document.getElementById("loginArea").classList.remove("hidden");
 }
+
 
 function fazerLogin() {
 let usuario = document.getElementById("usuario").value;
 let senha = document.getElementById("senha").value;
 
 if(usuario === "admin" && senha === "1234") {
-document.getElementById("loginArea").classList.add("hidden");
+
+document.querySelectorAll(".container").forEach(c => c.classList.add("hidden"));
+
 document.getElementById("adminArea").classList.remove("hidden");
+
 carregarPedidos();
 carregarComentariosADM();
+
 } else {
 alert("Login incorreto");
 }
 }
 
+
 function voltar() {
-document.getElementById("adminArea").classList.add("hidden");
-document.getElementById("pedidoArea").classList.remove("hidden");
+
+    // Esconde tudo primeiro
+    document.querySelectorAll(".container").forEach(c => c.classList.add("hidden"));
+
+    // Mostra apenas as áreas públicas atuais
+    document.getElementById("pedidoArea").classList.remove("hidden");
+
+    // Mostrar também as outras áreas públicas
+    document.querySelectorAll(".container").forEach(c => {
+        if(
+            c.id !== "adminArea" &&
+            c.id !== "loginArea"
+        ){
+            c.classList.remove("hidden");
+        }
+    });
+
 }
+
 
 // PEDIDOS ADM
 function carregarPedidos() {
