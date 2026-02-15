@@ -105,6 +105,95 @@ button:hover { background-color: #e84118; }
     justify-content: center;
 }
 
+.rodape {
+    margin-top: 40px;
+    padding: 20px;
+    background: #ff6b81;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+.autor {
+    color: yellow;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.autor:hover {
+    color: white;
+    transform: scale(1.1);
+}
+
+.efeitos {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: -1;
+}
+
+/* MORANGOS */
+.morango {
+    position: absolute;
+    top: -50px;
+    font-size: 25px;
+    animation: cair 8s linear infinite;
+}
+
+/* LUZES CAINDO */
+.luz {
+    position: absolute;
+    top: -20px;
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 8px white,
+                0 0 15px #ff6b81,
+                0 0 25px #ff4757;
+    animation: cair 6s linear infinite;
+}
+
+/* LUZES PARADAS */
+.luz-parada {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px white,
+                0 0 20px #ff6b81,
+                0 0 30px #ff4757;
+    animation: brilho 3s ease-in-out infinite alternate;
+}
+
+/* ANIMAÇÃO QUEDA */
+@keyframes cair {
+    0% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(110vh);
+        opacity: 0;
+    }
+}
+
+/* ANIMAÇÃO BRILHO */
+@keyframes brilho {
+    0% { opacity: 0.3; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1.5); }
+}
+
+
+
 
 </style>
 </head>
@@ -365,7 +454,58 @@ carregarAvaliacoes();
 
 carregarAvaliacoes();
 
+function criarEfeitos() {
+    const container = document.querySelector(".efeitos");
+
+    // MORANGOS CAINDO
+    for (let i = 0; i < 20; i++) {
+        let morango = document.createElement("div");
+        morango.classList.add("morango");
+        morango.innerHTML = "🍓";
+        morango.style.left = Math.random() * 100 + "vw";
+        morango.style.animationDuration = (5 + Math.random() * 5) + "s";
+        morango.style.animationDelay = Math.random() * 5 + "s";
+        container.appendChild(morango);
+    }
+
+    // LUZES CAINDO
+    for (let i = 0; i < 30; i++) {
+        let luz = document.createElement("div");
+        luz.classList.add("luz");
+        luz.style.left = Math.random() * 100 + "vw";
+        luz.style.animationDuration = (3 + Math.random() * 4) + "s";
+        luz.style.animationDelay = Math.random() * 5 + "s";
+        container.appendChild(luz);
+    }
+
+    // LUZES PARADAS
+    for (let i = 0; i < 40; i++) {
+        let luzParada = document.createElement("div");
+        luzParada.classList.add("luz-parada");
+        luzParada.style.top = Math.random() * 100 + "vh";
+        luzParada.style.left = Math.random() * 100 + "vw";
+        luzParada.style.animationDelay = Math.random() * 3 + "s";
+        container.appendChild(luzParada);
+    }
+}
+
+window.onload = criarEfeitos;
+
+
+
+
 </script>
+
+<footer class="rodape">
+    © 2026 | Desenvolvido por 
+    <a href="#" class="autor">Pedro lindoso</a> 🚀  
+    <br>
+    Desenvolvedor Front-End em evolução 💻✨
+</footer>
+
+<div class="efeitos"></div>
+
 
 </body>
 </html>
+
