@@ -192,6 +192,16 @@ button:hover { background-color: #e84118; }
     100% { opacity: 1; transform: scale(1.5); }
 }
 
+.botoes-avaliacao {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.botoes-avaliacao button {
+    min-width: 140px;
+}
 
 
 
@@ -246,13 +256,29 @@ Total: R$ <span id="valorTotal">0</span>
 
 <!-- AVALIAÇÕES -->
 <div class="container">
-<h2>Avaliações</h2>
+<h2>Deixe a sua Avaliação</h2>
+
+
 
 <input type="text" id="nomeAvaliacao" placeholder="Seu nome">
 <textarea id="comentario" placeholder="Deixe sua avaliação"></textarea>
-<button onclick="salvarAvaliacao()">Enviar</button>
+<input type="file" id="fotoAvaliacao" accept="image/*" hidden>
 
+<div class="botoes-avaliacao">
+    <button type="button" onclick="document.getElementById('fotoAvaliacao').click()">
+        📷 Adicionar Foto
+    </button>
+
+    <button onclick="salvarAvaliacao()">
+        Enviar
+    </button>   
+</div>
+
+
+<!-- As avaliações aparecem aqui-->
 <div id="listaAvaliacoes"></div>
+
+
 </div>
 
 </div>
@@ -394,55 +420,79 @@ carregarPedidos();
 
 // SALVAR AVALIAÇÃO
 function salvarAvaliacao() {
-let nome = document.getElementById("nomeAvaliacao").value;
-let comentario = document.getElementById("comentario").value;
+    let nome = document.getElementById("nomeAvaliacao").value;
+    let comentario = document.getElementById("comentario").value;
+    let fotoInput = document.getElementById("fotoAvaliacao");
+    let arquivo = fotoInput.files[0];
 
-if(nome && comentario) {
-let avaliacao = { nome, comentario };
+    if(nome && comentario) {
 
-let avaliacoes = JSON.parse(localStorage.getItem("avaliacoes")) || [];
-avaliacoes.push(avaliacao);
-localStorage.setItem("avaliacoes", JSON.stringify(avaliacoes));
+        if(arquivo) {
+            let reader = new FileReader();
 
-document.getElementById("nomeAvaliacao").value = "";
-document.getElementById("comentario").value = "";
+            reader.onload = function(e) {
+                salvarNoStorage(nome, comentario, e.target.result);
+            };
 
-carregarAvaliacoes();
+            reader.readAsDataURL(arquivo);
+
+        } else {
+            salvarNoStorage(nome, comentario, null);
+        }
+    }
 }
+
+function salvarNoStorage(nome, comentario, foto) {
+    let avaliacao = { nome, comentario, foto };
+
+    let avaliacoes = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+    avaliacoes.push(avaliacao);
+    localStorage.setItem("avaliacoes", JSON.stringify(avaliacoes));
+
+    document.getElementById("nomeAvaliacao").value = "";
+    document.getElementById("comentario").value = "";
+    document.getElementById("fotoAvaliacao").value = "";
+
+    carregarAvaliacoes();
 }
+
 
 function carregarAvaliacoes() {
-let lista = document.getElementById("listaAvaliacoes");
-lista.innerHTML = "";
+    let lista = document.getElementById("listaAvaliacoes");
+    lista.innerHTML = "";
 
-let avaliacoes = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+    let avaliacoes = JSON.parse(localStorage.getItem("avaliacoes")) || [];
 
-avaliacoes.forEach(a => {
-lista.innerHTML += `
-<div class="box">
-<strong>${a.nome}</strong><br>
-${a.comentario}
-</div>
-`;
-});
+    avaliacoes.forEach(a => {
+        lista.innerHTML += `
+        <div class="box">
+            <strong>${a.nome}</strong><br>
+            ${a.comentario}<br>
+            ${a.foto ? `<img src="${a.foto}" style="width:100px;margin-top:10px;border-radius:8px;">` : ""}
+        </div>
+        `;
+    });
 }
+
 
 function carregarComentariosADM() {
-let lista = document.getElementById("listaComentariosADM");
-lista.innerHTML = "";
+    let lista = document.getElementById("listaComentariosADM");
+    lista.innerHTML = "";
 
-let avaliacoes = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+    let avaliacoes = JSON.parse(localStorage.getItem("avaliacoes")) || [];
 
-avaliacoes.forEach((a, index) => {
-lista.innerHTML += `
-<div class="box">
-<strong>${a.nome}</strong><br>
-${a.comentario}<br>
-<button onclick="excluirComentario(${index})">Excluir</button>
-</div>
-`;
-});
+    avaliacoes.forEach((a, index) => {
+        lista.innerHTML += `
+        <div class="box">
+            <strong>${a.nome}</strong><br>
+            ${a.comentario}<br>
+            ${a.foto ? `<img src="${a.foto}" style="width:100px;margin-top:10px;border-radius:8px;">` : ""}<br>
+            <button onclick="excluirComentario(${index})">Excluir</button>
+        </div>
+        `;
+    });
 }
+
 
 function excluirComentario(index) {
 let avaliacoes = JSON.parse(localStorage.getItem("avaliacoes")) || [];
@@ -508,4 +558,3 @@ window.onload = criarEfeitos;
 
 </body>
 </html>
-
