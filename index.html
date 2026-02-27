@@ -203,7 +203,11 @@ button:hover { background-color: #e84118; }
     min-width: 140px;
 }
 
-
+.sobre-texto {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
 
 </style>
 </head>
@@ -303,6 +307,34 @@ Total: R$ <span id="valorTotal">0</span>
 
 <h3>Pedidos</h3>
 <div id="listaPedidos"></div>
+<h2>📦 Controle de Estoque</h2>
+
+<table id="tabelaEstoque" border="1" style="width:100%; border-collapse: collapse; background:white;">
+    <thead style="background:#ff6b81; color:white;">
+        <tr>
+            <th>Ingrediente</th>
+            <th>Quantidade Restante</th>
+        </tr>
+    </thead>
+    <tbody id="estoqueInfo">
+    </tbody>
+</table>
+
+<h2>📉 Ingredientes Utilizados</h2>
+
+<table border="1" style="width:100%; border-collapse: collapse; background:white;">
+    <thead style="background:#e84118; color:white;">
+        <tr>
+            <th>Ingrediente</th>
+            <th>Total Utilizado</th>
+        </tr>
+    </thead>
+    <tbody id="tabelaGastos">
+    </tbody>
+</table>
+
+<h2>💰 Custo Total de Ingredientes Usados</h2>
+<p>R$ <span id="custoTotal">0.00</span></p>
 
 <h3>Comentários</h3>
 <div id="listaComentariosADM"></div>
@@ -314,111 +346,142 @@ Total: R$ <span id="valorTotal">0</span>
 
 <script>
 
-// TOTAL
+/* =========================
+   VARIÁVEIS GLOBAIS
+========================= */
+
+let estoque = {
+    ovo: { quantidade: 30, unidade: "un", precoPorUnidade: 0.76 },
+    acucar: { quantidade: 1000, unidade: "g", precoPorUnidade: 0.00299 },
+    leite: { quantidade: 2000, unidade: "ml", precoPorUnidade: 0.00445 },
+    oleo: { quantidade: 900, unidade: "ml", precoPorUnidade: 0.0078 },
+    massa: { quantidade: 800, unidade: "g", precoPorUnidade: 0.0099 },
+
+    morango: { quantidade: 1000, unidade: "g", precoPorUnidade: 0.02 },
+    leiteCondensado: { quantidade: 3, unidade: "un", precoPorUnidade: 5.19 },
+    cremeDeLeite: { quantidade: 3, unidade: "un", precoPorUnidade: 2.29 },
+    granulado: { quantidade: 500, unidade: "g", precoPorUnidade: 0.0278 },
+    leitePo: { quantidade: 400, unidade: "g", precoPorUnidade: 0.03175 }
+};
+
+
+let ingredientesGastos = {};
+
+let custoIngredientesUsados = 0;
+
+let custoReposicao = 0;
+
+/* =========================
+   TOTAL DO PEDIDO
+========================= */
+
 function calcularTotal() {
-let preco = document.getElementById("sabor").value;
-let quantidade = document.getElementById("quantidade").value;
+    let preco = parseFloat(document.getElementById("sabor").value);
+    let quantidade = parseInt(document.getElementById("quantidade").value);
 
-if(preco && quantidade) {
-document.getElementById("valorTotal").innerText = preco * quantidade;
-}
+    if(preco && quantidade) {
+        document.getElementById("valorTotal").innerText = (preco * quantidade).toFixed(2);
+    } else {
+        document.getElementById("valorTotal").innerText = "0";
+    }
 }
 
-// SALVAR PEDIDO
+
+/* =========================
+   SALVAR PEDIDO
+========================= */
+
 function salvarPedido(event) {
-event.preventDefault();
+    event.preventDefault();
 
-let nome = document.getElementById("nome").value;
-let sabor = document.getElementById("sabor").selectedOptions[0].text;
-let quantidade = document.getElementById("quantidade").value;
-let whatsapp = document.getElementById("whatsapp").value;
+    let nome = document.getElementById("nome").value;
+    let sabor = document.getElementById("sabor").selectedOptions[0].text;
+    let quantidade = parseInt(document.getElementById("quantidade").value);
+    let whatsapp = document.getElementById("whatsapp").value;
 
-let pedido = { nome, sabor, quantidade, whatsapp };
+    let pedido = { nome, sabor, quantidade, whatsapp };
+    
+    atualizarEstoquePorPedido(quantidade);
 
-let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
-pedidos.push(pedido);
-localStorage.setItem("pedidos", JSON.stringify(pedidos));
+    let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+    pedidos.push(pedido);
+    localStorage.setItem("pedidos", JSON.stringify(pedidos));
 
-alert("Pedido enviado com sucesso!");
-document.querySelector("form").reset();
-document.getElementById("valorTotal").innerText = "0";
+    alert("Pedido enviado com sucesso!");
+
+    document.querySelector("form").reset();
+    document.getElementById("valorTotal").innerText = "0";
 }
 
-// LOGIN
+
+/* =========================
+   LOGIN
+========================= */
+
 function mostrarLogin() {
-document.querySelectorAll(".container").forEach(c => c.classList.add("hidden"));
-document.getElementById("loginArea").classList.remove("hidden");
+    document.getElementById("pedidoArea").classList.add("hidden");
+    document.getElementById("loginArea").classList.remove("hidden");
 }
-
 
 function fazerLogin() {
-let usuario = document.getElementById("usuario").value;
-let senha = document.getElementById("senha").value;
+    let usuario = document.getElementById("usuario").value;
+    let senha = document.getElementById("senha").value;
 
-if(usuario === "admin" && senha === "1234") {
+    if(usuario === "admin" && senha === "1234") {
 
-document.querySelectorAll(".container").forEach(c => c.classList.add("hidden"));
+        document.getElementById("loginArea").classList.add("hidden");
+        document.getElementById("adminArea").classList.remove("hidden");
 
-document.getElementById("adminArea").classList.remove("hidden");
+        carregarPedidos();
+        carregarComentariosADM();
+        atualizarEstoque();
 
-carregarPedidos();
-carregarComentariosADM();
-
-} else {
-alert("Login incorreto");
+    } else {
+        alert("Login incorreto");
+    }
 }
-}
-
 
 function voltar() {
-
-    // Esconde tudo primeiro
-    document.querySelectorAll(".container").forEach(c => c.classList.add("hidden"));
-
-    // Mostra apenas as áreas públicas atuais
+    document.getElementById("adminArea").classList.add("hidden");
     document.getElementById("pedidoArea").classList.remove("hidden");
-
-    // Mostrar também as outras áreas públicas
-    document.querySelectorAll(".container").forEach(c => {
-        if(
-            c.id !== "adminArea" &&
-            c.id !== "loginArea"
-        ){
-            c.classList.remove("hidden");
-        }
-    });
-
 }
 
 
-// PEDIDOS ADM
+/* =========================
+   PEDIDOS ADM
+========================= */
+
 function carregarPedidos() {
-let lista = document.getElementById("listaPedidos");
-lista.innerHTML = "";
+    let lista = document.getElementById("listaPedidos");
+    lista.innerHTML = "";
 
-let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+    let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
 
-pedidos.forEach((p, index) => {
-lista.innerHTML += `
-<div class="box">
-<strong>${p.nome}</strong><br>
-${p.sabor}<br>
-Qtd: ${p.quantidade}<br>
-WhatsApp: ${p.whatsapp}<br>
-<button onclick="removerPedido(${index})">✔ Pedido Feito</button>
-</div>
-`;
-});
+    pedidos.forEach((p, index) => {
+        lista.innerHTML += `
+        <div class="box">
+            <strong>${p.nome}</strong><br>
+            ${p.sabor}<br>
+            Qtd: ${p.quantidade}<br>
+            WhatsApp: ${p.whatsapp}<br>
+            <button onclick="removerPedido(${index})">✔ Pedido Feito</button>
+        </div>
+        `;
+    });
 }
 
 function removerPedido(index) {
-let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
-pedidos.splice(index, 1);
-localStorage.setItem("pedidos", JSON.stringify(pedidos));
-carregarPedidos();
+    let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+    pedidos.splice(index, 1);
+    localStorage.setItem("pedidos", JSON.stringify(pedidos));
+    carregarPedidos();
 }
 
-// SALVAR AVALIAÇÃO
+
+/* =========================
+   AVALIAÇÕES
+========================= */
+
 function salvarAvaliacao() {
     let nome = document.getElementById("nomeAvaliacao").value;
     let comentario = document.getElementById("comentario").value;
@@ -429,13 +492,10 @@ function salvarAvaliacao() {
 
         if(arquivo) {
             let reader = new FileReader();
-
             reader.onload = function(e) {
                 salvarNoStorage(nome, comentario, e.target.result);
             };
-
             reader.readAsDataURL(arquivo);
-
         } else {
             salvarNoStorage(nome, comentario, null);
         }
@@ -456,7 +516,6 @@ function salvarNoStorage(nome, comentario, foto) {
     carregarAvaliacoes();
 }
 
-
 function carregarAvaliacoes() {
     let lista = document.getElementById("listaAvaliacoes");
     lista.innerHTML = "";
@@ -474,7 +533,6 @@ function carregarAvaliacoes() {
     });
 }
 
-
 function carregarComentariosADM() {
     let lista = document.getElementById("listaComentariosADM");
     lista.innerHTML = "";
@@ -486,65 +544,148 @@ function carregarComentariosADM() {
         <div class="box">
             <strong>${a.nome}</strong><br>
             ${a.comentario}<br>
-            ${a.foto ? `<img src="${a.foto}" style="width:100px;margin-top:10px;border-radius:8px;">` : ""}<br>
             <button onclick="excluirComentario(${index})">Excluir</button>
         </div>
         `;
     });
 }
 
-
 function excluirComentario(index) {
-let avaliacoes = JSON.parse(localStorage.getItem("avaliacoes")) || [];
-avaliacoes.splice(index, 1);
-localStorage.setItem("avaliacoes", JSON.stringify(avaliacoes));
-carregarComentariosADM();
-carregarAvaliacoes();
+    let avaliacoes = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+    avaliacoes.splice(index, 1);
+    localStorage.setItem("avaliacoes", JSON.stringify(avaliacoes));
+    carregarComentariosADM();
+    carregarAvaliacoes();
 }
 
-carregarAvaliacoes();
 
-function criarEfeitos() {
-    const container = document.querySelector(".efeitos");
+/* =========================
+   ESTOQUE
+========================= */
 
-    // MORANGOS CAINDO
-    for (let i = 0; i < 20; i++) {
-        let morango = document.createElement("div");
-        morango.classList.add("morango");
-        morango.innerHTML = "🍓";
-        morango.style.left = Math.random() * 100 + "vw";
-        morango.style.animationDuration = (5 + Math.random() * 5) + "s";
-        morango.style.animationDelay = Math.random() * 5 + "s";
-        container.appendChild(morango);
+function atualizarEstoquePorPedido(quantidade) {
+
+    let consumoPorCopo = {
+        ovo: 0.4,
+        acucar: 20,
+        leite: 20,
+        oleo: 10,
+        massa: 20,
+        morango: 50,
+        leiteCondensado: 0.2,
+        cremeDeLeite: 0.2,
+        granulado: 10,
+        leitePo: 10
+    };
+
+    for (let item in consumoPorCopo) {
+
+        let usado = consumoPorCopo[item] * quantidade;
+
+        // desconta do estoque
+        estoque[item].quantidade -= usado;
+
+        // soma no controle de gastos
+        if (!ingredientesGastos[item]) {
+            ingredientesGastos[item] = 0;
+        }
+
+        ingredientesGastos[item] += usado;
+
+        // calcula custo reposição
+        custoReposicao += usado * estoque[item].precoPorUnidade;
     }
 
-    // LUZES CAINDO
-    for (let i = 0; i < 30; i++) {
-        let luz = document.createElement("div");
-        luz.classList.add("luz");
-        luz.style.left = Math.random() * 100 + "vw";
-        luz.style.animationDuration = (3 + Math.random() * 4) + "s";
-        luz.style.animationDelay = Math.random() * 5 + "s";
-        container.appendChild(luz);
-    }
+    document.getElementById("custoTotal").innerText = custoReposicao.toFixed(2);
 
-    // LUZES PARADAS
-    for (let i = 0; i < 40; i++) {
-        let luzParada = document.createElement("div");
-        luzParada.classList.add("luz-parada");
-        luzParada.style.top = Math.random() * 100 + "vh";
-        luzParada.style.left = Math.random() * 100 + "vw";
-        luzParada.style.animationDelay = Math.random() * 3 + "s";
-        container.appendChild(luzParada);
+    atualizarEstoque();
+    atualizarTabelaGastos();
+}
+
+function formatarNome(nome) {
+    const nomesBonitos = {
+        ovo: "Ovos",
+        acucar: "Açúcar",
+        leite: "Leite",
+        oleo: "Óleo",
+        achocolatado: "Achocolatado",
+        leitePo: "Leite em pó",
+        morango: "Morango",
+        leiteCondensado: "Leite Condensado",
+        margarina: "Margarina",
+        cremeDeLeite: "Creme de Leite",
+        massa: "Massa pronta",
+        granulado: "Granulado"
+    };
+
+    return nomesBonitos[nome] || nome;
+}
+
+function atualizarEstoque() {
+
+    let tbody = document.getElementById("estoqueInfo");
+    tbody.innerHTML = "";
+
+    for (let item in estoque) {
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${formatarNome(item)}</td>
+                <td>${estoque[item].quantidade.toFixed(2)} ${estoque[item].unidade}</td>
+            </tr>
+        `;
     }
 }
 
-window.onload = criarEfeitos;
 
 
+/* =========================
+   INICIALIZAÇÃO
+========================= */
+
+window.onload = function() {
+    carregarAvaliacoes();
+    atualizarEstoque();
+    atualizarTabelaGastos();
+};
+
+function atualizarTabelaGastos() {
+
+    let tbody = document.getElementById("tabelaGastos");
+    tbody.innerHTML = "";
+
+    for (let item in ingredientesGastos) {
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${formatarNome(item)}</td>
+                <td>${ingredientesGastos[item].toFixed(2)} ${estoque[item].unidade}</td>
+            </tr>
+        `;
+    }
+}
 
 
 </script>
+
+<div class="container">
+    <h2>🍓 Sobre o Copo da Felicidade</h2>
+    
+    <p style="font-size:16px; line-height:1.6;">
+        O Copo da Felicidade é uma sobremesa deliciosa feita em camadas,
+        combinando bolo macio, cremes irresistíveis e frutas fresquinhas.
+        Cada colherada é uma explosão de sabor que conquista qualquer pessoa!
+    </p>
+
+    <p style="font-size:16px; line-height:1.6;">
+        Ideal para festas, encontros ou para matar aquela vontade de doce,
+        nosso copo é preparado com ingredientes de qualidade e muito carinho.
+    </p>
+
+    <p style="font-weight:bold; color:#ff4757; margin-top:15px;">
+        💖 Feito para deixar seu dia mais feliz!
+    </p>
+</div>
 
 <footer class="rodape">
     © 2026 | Desenvolvido por 
