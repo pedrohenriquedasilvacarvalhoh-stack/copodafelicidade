@@ -216,6 +216,26 @@ button:hover { background-color: #e84118; }
 
 <header>🍓 Copo da Felicidade 🍫</header>
 
+<div class="container">
+    <h2>🍓 Sobre o Copo da Felicidade</h2>
+    
+    <p style="font-size:16px; line-height:1.6;">
+        O Copo da Felicidade é uma sobremesa deliciosa feita em camadas,
+        combinando bolo macio, cremes irresistíveis e frutas fresquinhas.
+        Cada colherada é uma explosão de sabor que conquista qualquer pessoa!
+    </p>
+
+    <p style="font-size:16px; line-height:1.6;">
+        Ideal para festas, encontros ou para matar aquela vontade de doce,
+        nosso copo é preparado com ingredientes de qualidade e muito carinho.
+    </p>
+
+    <p style="font-weight:bold; color:#ff4757; margin-top:15px;">
+        💖 Feito para deixar seu dia mais feliz!
+    </p>
+</div>
+
+
 <div class="container" id="pedidoArea">
 
 <div class="flex-area">
@@ -252,6 +272,33 @@ Total: R$ <span id="valorTotal">0</span>
 </div>
 
 <input type="text" id="whatsapp" placeholder="Seu WhatsApp" required>
+
+<select id="localEntrega" required onchange="verificarLocal()">
+    <option value="">Onde prefere receber?</option>
+    <option value="Escola">Jardim Santa Maria III</option>
+    <option value="Para retirar">Retirar no local</option>
+    <option value="Casa">Casa (Entrega)</option>
+</select>
+
+<div id="campoEscola" class="hidden">
+    <input type="text" id="nomeAluno" placeholder="Nome do Aluno">
+    <input type="text" id="salaAluno" placeholder="Série/Sala (Ex: 3º A)">
+</div>
+
+<div id="campoEndereco" class="hidden">
+    <input type="text" id="endereco" placeholder="Seu endereço completo">
+    <p style="color: #e84118; font-size: 12px; font-weight: bold;">
+        ⚠️ Atenção: Entregas apenas para o bairro Santa Maria ou proximidades.
+    </p>
+</div>
+
+<div id="campoRetirada" class="hidden">
+    <p style="background: #fff3f3; padding: 10px; border-radius: 8px; border: 1px solid #ff6b81; color: #ff4757;">
+        📍 <strong>Local de Retirada:</strong> Casa do Pedro, Nº 123
+    </p>
+
+</div>
+
 
 <button type="submit">Fazer Pedido</button>
 </form>
@@ -398,8 +445,27 @@ function salvarPedido(event) {
     let sabor = document.getElementById("sabor").selectedOptions[0].text;
     let quantidade = parseInt(document.getElementById("quantidade").value);
     let whatsapp = document.getElementById("whatsapp").value;
+    let localEntrega = document.getElementById("localEntrega").value;
+    
+    // Dados extras
+    let endereco = document.getElementById("endereco").value;
+    let nomeAluno = document.getElementById("nomeAluno").value;
+    let salaAluno = document.getElementById("salaAluno").value;
+    
+    // Gerar código de 4 dígitos
+    let codigoPedido = Math.floor(1000 + Math.random() * 9000);
 
-    let pedido = { nome, sabor, quantidade, whatsapp };
+    let pedido = { 
+        nome, 
+        sabor, 
+        quantidade, 
+        whatsapp, 
+        localEntrega, 
+        endereco: localEntrega === "Casa" ? endereco : "N/A",
+        dadosEscola: localEntrega === "Escola" ? `${nomeAluno} - Sala: ${salaAluno}` : "N/A",
+        codigo: codigoPedido
+        
+    };
     
     atualizarEstoquePorPedido(quantidade);
 
@@ -407,9 +473,10 @@ function salvarPedido(event) {
     pedidos.push(pedido);
     localStorage.setItem("pedidos", JSON.stringify(pedidos));
 
-    alert("Pedido enviado com sucesso!");
+    alert(`Pedido enviado! ✅\nSeu código de retirada é: ${codigoPedido}`);
 
     document.querySelector("form").reset();
+    verificarLocal(); // Esconde os campos novamente
     document.getElementById("valorTotal").innerText = "0";
 }
 
@@ -454,17 +521,18 @@ function voltar() {
 function carregarPedidos() {
     let lista = document.getElementById("listaPedidos");
     lista.innerHTML = "";
-
     let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
 
     pedidos.forEach((p, index) => {
         lista.innerHTML += `
         <div class="box">
-            <strong>${p.nome}</strong><br>
-            ${p.sabor}<br>
-            Qtd: ${p.quantidade}<br>
-            WhatsApp: ${p.whatsapp}<br>
-            <button onclick="removerPedido(${index})">✔ Pedido Feito</button>
+            <span style="background:#ff4757; color:white; padding:2px 6px; border-radius:5px;">#${p.codigo}</span><br>
+            <strong>${p.nome}</strong> | ${p.sabor} (Qtd: ${p.quantidade})<br>
+            Local: <strong>${p.localEntrega}</strong><br>
+            ${p.localEntrega === "Escola" ? `👤 Aluno: ${p.dadosEscola}` : ""}
+            ${p.localEntrega === "Casa" ? `📍 Endereço: ${p.endereco}` : ""}
+            <br>📱 WhatsApp: ${p.whatsapp}<br>
+            <button onclick="removerPedido(${index})">✔ Concluir Pedido</button>
         </div>
         `;
     });
@@ -566,7 +634,7 @@ function excluirComentario(index) {
 function atualizarEstoquePorPedido(quantidade) {
 
     let consumoPorCopo = {
-        ovo: 0.4,
+        ovo: 1,
         acucar: 20,
         leite: 20,
         oleo: 10,
@@ -584,6 +652,10 @@ function atualizarEstoquePorPedido(quantidade) {
 
         // desconta do estoque
         estoque[item].quantidade -= usado;
+
+if(item === "ovo") {
+    estoque[item].quantidade = Math.round(estoque[item].quantidade);
+}
 
         // soma no controle de gastos
         if (!ingredientesGastos[item]) {
@@ -622,16 +694,19 @@ function formatarNome(nome) {
 }
 
 function atualizarEstoque() {
-
     let tbody = document.getElementById("estoqueInfo");
     tbody.innerHTML = "";
 
     for (let item in estoque) {
+        // Verifica se a unidade é "un" para remover as casas decimais
+        let quantidadeExibida = estoque[item].unidade === "un" 
+            ? Math.round(estoque[item].quantidade) 
+            : estoque[item].quantidade.toFixed(2);
 
         tbody.innerHTML += `
             <tr>
                 <td>${formatarNome(item)}</td>
-                <td>${estoque[item].quantidade.toFixed(2)} ${estoque[item].unidade}</td>
+                <td>${quantidadeExibida} ${estoque[item].unidade}</td>
             </tr>
         `;
     }
@@ -650,42 +725,93 @@ window.onload = function() {
 };
 
 function atualizarTabelaGastos() {
-
     let tbody = document.getElementById("tabelaGastos");
     tbody.innerHTML = "";
 
     for (let item in ingredientesGastos) {
+        // Verifica se a unidade no objeto estoque é "un"
+        let gastoExibido = estoque[item].unidade === "un" 
+            ? Math.round(ingredientesGastos[item]) 
+            : ingredientesGastos[item].toFixed(2);
 
         tbody.innerHTML += `
             <tr>
                 <td>${formatarNome(item)}</td>
-                <td>${ingredientesGastos[item].toFixed(2)} ${estoque[item].unidade}</td>
+                <td>${gastoExibido} ${estoque[item].unidade}</td>
             </tr>
         `;
+    }
+}
+
+/* =========================
+   GERAR EFEITOS VISUAIS
+========================= */
+
+function criarEfeitos() {
+    const areaEfeitos = document.querySelector('.efeitos');
+    const itens = ['🍓', '⚪', '🧁']; // Morango, brilho e luz
+
+    setInterval(() => {
+        const elemento = document.createElement('div');
+        const tipo = Math.random();
+
+        // Define se será morango ou luz
+        if (tipo > 0.8) {
+            elemento.className = 'morango';
+            elemento.innerText = '🍓';
+        } else {
+            elemento.className = 'luz';
+        }
+
+        // Posição aleatória na largura da tela
+        elemento.style.left = Math.random() * 100 + "vw";
+        // Duração aleatória para não caírem todos iguais
+        elemento.style.animationDuration = (Math.random() * 3 + 5) + "s";
+
+        areaEfeitos.appendChild(elemento);
+
+        // Remove o elemento depois que a animação termina para não travar o PC
+        setTimeout(() => {
+            elemento.remove();
+        }, 80000);
+    }, 500); // Cria um novo a cada meio segundo
+}
+
+// Chame a função dentro do window.onload existente
+const originalOnload = window.onload;
+window.onload = function() {
+    originalOnload();
+    criarEfeitos();
+};
+
+
+
+//FUNÇÃO PARA VEIFICAR LOCAL
+function verificarLocal() {
+    let local = document.getElementById("localEntrega").value;
+    let campoEscola = document.getElementById("campoEscola");
+    let campoEndereco = document.getElementById("campoEndereco");
+    let campoRetirada = document.getElementById("campoRetirada");
+
+    // Esconde tudo primeiro
+    campoEscola.classList.add("hidden");
+    campoEndereco.classList.add("hidden");
+    campoRetirada.classList.add("hidden");
+
+    // Mostra o campo específico baseado na escolha
+    if (local === "Escola") {
+        campoEscola.classList.remove("hidden");
+    } else if (local === "Casa") {
+        campoEndereco.classList.remove("hidden");
+    } else if (local === "Para retirar") {
+        campoRetirada.classList.remove("hidden");
     }
 }
 
 
 </script>
 
-<div class="container">
-    <h2>🍓 Sobre o Copo da Felicidade</h2>
-    
-    <p style="font-size:16px; line-height:1.6;">
-        O Copo da Felicidade é uma sobremesa deliciosa feita em camadas,
-        combinando bolo macio, cremes irresistíveis e frutas fresquinhas.
-        Cada colherada é uma explosão de sabor que conquista qualquer pessoa!
-    </p>
 
-    <p style="font-size:16px; line-height:1.6;">
-        Ideal para festas, encontros ou para matar aquela vontade de doce,
-        nosso copo é preparado com ingredientes de qualidade e muito carinho.
-    </p>
-
-    <p style="font-weight:bold; color:#ff4757; margin-top:15px;">
-        💖 Feito para deixar seu dia mais feliz!
-    </p>
-</div>
 
 <footer class="rodape">
     © 2026 | Desenvolvido por 
