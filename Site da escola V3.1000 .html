@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Copo da Felicidade</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #b9d7f2;
+    text-align: center;
+}
+
+header {
+    background-color: #ff6b81;
+    color: white;
+    padding: 20px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.container {
+    margin: 30px auto;
+    background: white;
+    width: 90%;
+    max-width: 900px;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+h2 { color: #ff6b81; }
+
+img {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+input, select, textarea {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background-color: #ff4757;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+button:hover { background-color: #e84118; }
+
+.hidden { display: none; }
+
+.box {
+    background: #f1f1f1;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 8px;
+}
+
+.total {
+    font-weight: bold;
+    color: #e84118;
+}
+
+.flex-area {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.lado-foto {
+    flex: 1;
+    min-width: 200px;
+}
+
+.lado-pedido {
+    flex: 1;
+    min-width: 250px;
+}
+
+.frase {
+    font-weight: bold;
+    color: #ff4757;
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.rodape {
+    margin-top: 40px;
+    padding: 20px;
+    background: #ff6b81;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+.autor {
+    color: yellow;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.autor:hover {
+    color: white;
+    transform: scale(1.1);
+}
+
+.efeitos {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: -1;
+}
+
+/* MORANGOS */
+.morango {
+    position: absolute;
+    top: -50px;
+    font-size: 25px;
+    animation: cair 8s linear infinite;
+}
+
+/* LUZES CAINDO */
+.luz {
+    position: absolute;
+    top: -20px;
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 8px white,
+                0 0 15px #ff6b81,
+                0 0 25px #ff4757;
+    animation: cair 6s linear infinite;
+}
+
+/* LUZES PARADAS */
+.luz-parada {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px white,
+                0 0 20px #ff6b81,
+                0 0 30px #ff4757;
+    animation: brilho 3s ease-in-out infinite alternate;
+}
+
+/* ANIMAÇÃO QUEDA */
+@keyframes cair {
+    0% { transform: translateY(0); opacity: 0; }
+    10% { opacity: 1; }
+    100% { transform: translateY(110vh); opacity: 0; }
+}
+
+/* ANIMAÇÃO BRILHO */
+@keyframes brilho {
+    0% { opacity: 0.3; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1.5); }
+}
+
+.botoes-avaliacao {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.botoes-avaliacao button {
+    min-width: 140px;
+}
+
+.sobre-texto {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>🍓 Copo da Felicidade 🍫</header>
+
+<div class="container">
+    <h2>🍓 Sobre o Copo da Felicidade</h2>
+    
+    <p style="font-size:16px; line-height:1.6;">
+        O Copo da Felicidade é uma sobremesa deliciosa feita em camadas,
+        combinando bolo macio, cremes irresistíveis e frutas fresquinhas.
+        Cada colherada é uma explosão de sabor que conquista qualquer pessoa!
+    </p>
+
+    <p style="font-size:16px; line-height:1.6;">
+        Ideal para festas, encontros ou para matar aquela vontade de doce,
+        nosso copo é preparado com ingredientes de qualidade e muito carinho.
+    </p>
+
+    <p style="font-weight:bold; color:#ff4757; margin-top:15px;">
+        💖 Feito para deixar seu dia mais feliz!
+    </p>
+</div>
+
+
+<div class="container" id="pedidoArea">
+
+<div class="flex-area">
+
+<div class="lado-foto">
+<img src="copo1.png" alt="Copo 1">
+<img src="copo2.png" alt="Copo 2">
+</div>
+
+<div class="lado-pedido">
+
+<p class="frase">✨ Uma explosão de sabor em cada colherada! ✨</p>
+
+<h2>Faça seu Pedido</h2>
+
+<form onsubmit="salvarPedido(event)">
+<input type="text" id="nome" placeholder="Seu nome" required>
+
+<select id="sabor" required onchange="calcularTotal()">
+<option value="">Escolha o sabor</option>
+<option value="11">Morango - R$11</option>
+<option value="10">Chocolate - R$10</option>
+<option value="12">Morango com Chocolate - R$12</option>
+</select>
+
+<input type="number" id="quantidade" placeholder="Quantidade" min="1" required oninput="calcularTotal()">
+
+<div class="total">
+Total: R$ <span id="valorTotal">0</span>
+</div>
+
+<input type="text" id="whatsapp" placeholder="Seu WhatsApp" required>
+
+<select id="localEntrega" required onchange="verificarLocal()">
+    <option value="">Onde prefere receber?</option>
+    <option value="Escola">Jardim Santa Maria III</option>
+    <option value="Para retirar">Retirar no local</option>
+    <option value="Casa">Casa (Entrega)</option>
+</select>
+
+<div id="campoEscola" class="hidden">
+    <input type="text" id="nomeAluno" placeholder="Nome do Aluno">
+    <input type="text" id="salaAluno" placeholder="Série/Sala (Ex: 3º A)">
+</div>
+
+<div id="campoEndereco" class="hidden">
+    <input type="text" id="endereco" placeholder="Seu endereço completo">
+    <p style="color: #e84118; font-size: 12px; font-weight: bold;">
+        ⚠️ Atenção: Entregas apenas para o bairro Santa Maria ou proximidades.
+    </p>
+</div>
+
+<div id="campoRetirada" class="hidden">
+    <p style="background: #fff3f3; padding: 10px; border-radius: 8px; border: 1px solid #ff6b81; color: #ff4757;">
+        📍 <strong>Local de Retirada:</strong> Casa do Pedro, Nº 123
+    </p>
+</div>
+
+<button type="submit">Fazer Pedido</button>
+</form>
+
+<button onclick="mostrarLogin()">Área do Administrador</button>
+
+<div class="container" style="box-shadow: none; padding: 0;">
+<h2>Deixe a sua Avaliação</h2>
+
+<input type="text" id="nomeAvaliacao" placeholder="Seu nome">
+<textarea id="comentario" placeholder="Deixe sua avaliação"></textarea>
+<input type="file" id="fotoAvaliacao" accept="image/*" hidden>
+
+<div class="botoes-avaliacao">
+    <button type="button" onclick="document.getElementById('fotoAvaliacao').click()">
+        📷 Adicionar Foto
+    </button>
+    <button onclick="salvarAvaliacao()">Enviar</button>   
+</div>
+
+<div id="listaAvaliacoes"></div>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="container hidden" id="loginArea">
+<h2>Login ADM</h2>
+<input type="text" id="usuario" placeholder="Usuário">
+<input type="password" id="senha" placeholder="Senha">
+<button onclick="fazerLogin()">Entrar</button>
+</div>
+
+<div class="container hidden" id="adminArea">
+<h2>Painel Administrativo</h2>
+
+<button onclick="buscarPedidosRealTime()" style="background-color: #2ecc71; margin-bottom: 15px;">
+    🔄 Sincronizar com Google Sheets
+</button>
+
+<h3>Pedidos na Nuvem</h3>
+<div id="listaPedidos"></div>
+
+<hr>
+<h3>✅ Pedidos Concluídos</h3>
+<div id="listaConcluidos" style="background: #e8f5e9; padding: 10px; border-radius: 8px;">
+</div>
+
+<h2>📦 Controle de Estoque</h2>
+
+<table id="tabelaEstoque" border="1" style="width:100%; border-collapse: collapse; background:white;">
+    <thead style="background:#ff6b81; color:white;">
+        <tr>
+            <th>Ingrediente</th>
+            <th>Quantidade Restante</th>
+        </tr>
+    </thead>
+    <tbody id="estoqueInfo">
+    </tbody>
+</table>
+
+<h2>📉 Ingredientes Utilizados</h2>
+
+<table border="1" style="width:100%; border-collapse: collapse; background:white;">
+    <thead style="background:#e84118; color:white;">
+        <tr>
+            <th>Ingrediente</th>
+            <th>Total Utilizado</th>
+        </tr>
+    </thead>
+    <tbody id="tabelaGastos">
+    </tbody>
+</table>
+
+<h2>💰 Custo Total de Ingredientes Usados</h2>
+<p>R$ <span id="custoTotal">0.00</span></p>
+
+<h3>Comentários</h3>
+<div id="listaComentariosADM"></div>
+
+<button onclick="voltar()">Voltar</button>
+</div>
+
+<script>
+/* =========================
+   VARIÁVEIS GLOBAIS
+========================= */
+let estoque = {
+    ovo: { quantidade: 30, unidade: "un", precoPorUnidade: 0.76 },
+    acucar: { quantidade: 1000, unidade: "g", precoPorUnidade: 0.00299 },
+    leite: { quantidade: 2000, unidade: "ml", precoPorUnidade: 0.00445 },
+    oleo: { quantidade: 900, unidade: "ml", precoPorUnidade: 0.0078 },
+    massa: { quantidade: 800, unidade: "g", precoPorUnidade: 0.0099 },
+    morango: { quantidade: 1000, unidade: "g", precoPorUnidade: 0.02 },
+    leiteCondensado: { quantidade: 3, unidade: "un", precoPorUnidade: 5.19 },
+    cremeDeLeite: { quantidade: 3, unidade: "un", precoPorUnidade: 2.29 },
+    granulado: { quantidade: 500, unidade: "g", precoPorUnidade: 0.0278 },
+    leitePo: { quantidade: 400, unidade: "g", precoPorUnidade: 0.03175 }
+};
+
+let ingredientesGastos = {};
+let custoIngredientesUsados = 0;
+let custoReposicao = 0;
+
+/* =========================
+   TOTAL DO PEDIDO
+========================= */
+function calcularTotal() {
+    let preco = parseFloat(document.getElementById("sabor").value);
+    let quantidade = parseInt(document.getElementById("quantidade").value);
+
+    if(preco && quantidade) {
+        document.getElementById("valorTotal").innerText = (preco * quantidade).toFixed(2);
+    } else {
+        document.getElementById("valorTotal").innerText = "0";
+    }
+}
+
+/* =========================
+   CONEXÃO COM GOOGLE SHEETS E SALVAR PEDIDO
+========================= */
+const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbybflyQ6BEoAQhEtAEj3q9Gvm_m6aCBugBKnlxdpn0Zg_aOrNfMHo4IL9KJ-6mRjbxeiQ/exec";
+
+function salvarPedido(event) {
+    event.preventDefault(); 
+    let botaoSubmit = event.target.querySelector('button[type="submit"]');
+    botaoSubmit.innerText = "Enviando pedido... ⏳";
+    botaoSubmit.disabled = true;
+
+    let nome = document.getElementById("nome").value;
+    let sabor = document.getElementById("sabor").selectedOptions[0].text;
+    let quantidade = parseInt(document.getElementById("quantidade").value);
+    let whatsapp = document.getElementById("whatsapp").value;
+    let localEntrega = document.getElementById("localEntrega").value;
+    
+    let endereco = document.getElementById("endereco").value;
+    let nomeAluno = document.getElementById("nomeAluno").value;
+    let salaAluno = document.getElementById("salaAluno").value;
+    
+    let codigoPedido = Math.floor(1000 + Math.random() * 9000);
+
+    let detalhesEntrega = localEntrega;
+    if (localEntrega === "Casa") detalhesEntrega = `Casa: ${endereco}`;
+    if (localEntrega === "Escola") detalhesEntrega = `Escola: ${nomeAluno} - Sala: ${salaAluno}`;
+
+    let pedido = { 
+        nome: nome, 
+        sabor: sabor, 
+        quantidade: quantidade, 
+        whatsapp: whatsapp, 
+        localEntrega: detalhesEntrega, 
+        codigo: codigoPedido
+    };
+    
+    fetch(GOOGLE_SHEETS_URL, {
+        method: "POST",
+        body: JSON.stringify(pedido) 
+    })
+    .then(response => {
+        atualizarEstoquePorPedido(quantidade);
+
+        let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+        pedidos.push(pedido);
+        localStorage.setItem("pedidos", JSON.stringify(pedidos));
+
+        let precoSabor = parseFloat(document.getElementById("sabor").value) || 0;
+        let valorTotal = (precoSabor * quantidade).toFixed(2);
+
+        alert(`Pedido enviado com sucesso! ✅\nSeu código de retirada é: ${codigoPedido}\nValor Total: R$ ${valorTotal}`);
+
+        document.querySelector("form").reset();
+        verificarLocal(); 
+        document.getElementById("valorTotal").innerText = "0";
+        
+        botaoSubmit.innerText = "Fazer Pedido";
+        botaoSubmit.disabled = false;
+    })
+    .catch(error => {
+        console.error("Erro ao salvar:", error);
+        alert("Houve um erro de conexão ao enviar o pedido. Tente novamente.");
+        botaoSubmit.innerText = "Fazer Pedido";
+        botaoSubmit.disabled = false;
+    });
+}
+
+/* =========================
+   BUSCAR E CONCLUIR PEDIDOS
+========================= */
+async function buscarPedidosRealTime() {
+    let lista = document.getElementById("listaPedidos");
+    lista.innerHTML = "<p>Buscando...</p>";
+
+    try {
+        const response = await fetch(GOOGLE_SHEETS_URL);
+        const pedidosNuvem = await response.json();
+        lista.innerHTML = "";
+
+        pedidosNuvem.reverse().forEach((p) => {
+            let infoExtra = "";
+            if (p.localEntrega.includes("Escola:")) {
+                infoExtra = p.localEntrega.split("- Sala:")[1] || "Sala não definida";
+            }
+
+            lista.innerHTML += `
+            <div class="box" id="card-${p.codigo}">
+                <strong>#${p.codigo} - ${p.nome}</strong><br>
+                ${p.localEntrega}<br>
+                <button onclick="concluirPedido('${p.nome}', '${infoExtra}', '${p.codigo}')" style="background:#2ecc71;">
+                    ✔️ Concluir
+                </button>
+            </div>`;
+        });
+    } catch (e) { console.error(e); }
+}
+
+async function concluirPedido(nome, sala, codigo) {
+    const listaConcluidos = document.getElementById("listaConcluidos");
+    
+    const dadosConclusao = {
+        acao: "concluir",
+        nome: nome,
+        detalhe: sala ? "Sala: " + sala : "Retirada/Casa",
+        codigo: codigo
+    };
+
+    let cardPendente = document.getElementById(`card-${codigo}`);
+    if(cardPendente) cardPendente.style.display = "none";
+
+    const item = document.createElement("div");
+    item.className = "box";
+    item.id = `concluido-${codigo}`;
+    item.style.borderLeft = "5px solid #4caf50";
+    item.innerHTML = `
+        <strong>${nome}</strong> ${sala ? "| Sala: " + sala : ""} | ID: ${codigo}
+        <br>
+        <button onclick="marcarComoEntregue('${codigo}')" style="background:#e84118; margin-top: 10px; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;">
+            📦 Marcar como Entregue
+        </button>
+    `;
+    listaConcluidos.prepend(item);
+
+    try {
+        await fetch(GOOGLE_SHEETS_URL, {
+            method: "POST",
+            body: JSON.stringify(dadosConclusao)
+        });
+    } catch (e) {
+        console.error("Erro ao sincronizar conclusão:", e);
+    }
+}
+
+function marcarComoEntregue(codigo) {
+    let cardConcluido = document.getElementById(`concluido-${codigo}`);
+    if(cardConcluido) {
+        cardConcluido.remove(); 
+    }
+}
+
+/* =========================
+   LOGIN
+========================= */
+function mostrarLogin() {
+    document.getElementById("pedidoArea").classList.add("hidden");
+    document.getElementById("loginArea").classList.remove("hidden");
+}
+
+function fazerLogin() {
+    let usuario = document.getElementById("usuario").value;
+    let senha = document.getElementById("senha").value;
+
+    if(usuario === "admin" && senha === "1234") {
+        document.getElementById("loginArea").classList.add("hidden");
+        document.getElementById("adminArea").classList.remove("hidden");
+        carregarPedidos();
+        carregarComentariosADM();
+        atualizarEstoque();
+    } else {
+        alert("Login incorreto");
+    }
+}
+
+function voltar() {
+    document.getElementById("adminArea").classList.add("hidden");
+    document.getElementById("pedidoArea").classList.remove("hidden");
+}
+
+/* =========================
+   PEDIDOS ADM (LOCAL)
+========================= */
+function carregarPedidos() {
+    let lista = document.getElementById("listaPedidos");
+    // Removi a limpeza aqui para não apagar a busca em real time, mas mantive a função se for usar o storage
+}
+
+function removerPedido(index) {
+    let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+    pedidos.splice(index, 1);
+    localStorage.setItem("pedidos", JSON.stringify(pedidos));
+    carregarPedidos();
+}
+
+/* =========================
+   AVALIAÇÕES
+========================= */
+function salvarAvaliacao() {
+    let nome = document.getElementById("nomeAvaliacao").value;
+    let comentario = document.getElementById("comentario").value;
+    let fotoInput = document.getElementById("fotoAvaliacao");
+    let arquivo = fotoInput.files[0];
+
+    if(nome && comentario) {
+        if(arquivo) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                salvarNoStorage(nome, comentario, e.target.result);
+            };
+            reader.readAsDataURL(arquivo);
+        } else {
+            salvarNoStorage(nome, comentario, null);
+        }
+    }
+}
+
+function salvarNoStorage(nome, comentario, foto) {
+    let avaliacao = { nome, comentario, foto };
+    let avaliacoes = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+    avaliacoes.push(avaliacao);
+    localStorage.setItem("avaliacoes", JSON.stringify(avaliacoes));
+
+    document.getElementById("nomeAvaliacao").value = "";
+    document.getElementById("comentario").value = "";
+    document.getElementById("fotoAvaliacao").value = "";
+
+    carregarAvaliacoes();
+}
+
+function carregarAvaliacoes() {
+    let lista = document.getElementById("listaAvaliacoes");
+    lista.innerHTML = "";
+    let avaliacoes = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+
+    avaliacoes.forEach(a => {
+        lista.innerHTML += `
+        <div class="box">
+            <strong>${a.nome}</strong><br>
+            ${a.comentario}<br>
+            ${a.foto ? `<img src="${a.foto}" style="width:100px;margin-top:10px;border-radius:8px;">` : ""}
+        </div>
+        `;
+    });
+}
+
+function carregarComentariosADM() {
+    let lista = document.getElementById("listaComentariosADM");
+    lista.innerHTML = "";
+    let avaliacoes = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+
+    avaliacoes.forEach((a, index) => {
+        lista.innerHTML += `
+        <div class="box">
+            <strong>${a.nome}</strong><br>
+            ${a.comentario}<br>
+            <button onclick="excluirComentario(${index})">Excluir</button>
+        </div>
+        `;
+    });
+}
+
+function excluirComentario(index) {
+    let avaliacoes = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+    avaliacoes.splice(index, 1);
+    localStorage.setItem("avaliacoes", JSON.stringify(avaliacoes));
+    carregarComentariosADM();
+    carregarAvaliacoes();
+}
+
+/* =========================
+   ESTOQUE
+========================= */
+function atualizarEstoquePorPedido(quantidade) {
+    let consumoPorCopo = {
+        ovo: 1,
+        acucar: 20,
+        leite: 20,
+        oleo: 10,
+        massa: 20,
+        morango: 50,
+        leiteCondensado: 0.2,
+        cremeDeLeite: 0.2,
+        granulado: 10,
+        leitePo: 10
+    };
+
+    for (let item in consumoPorCopo) {
+        let usado = consumoPorCopo[item] * quantidade;
+        estoque[item].quantidade -= usado;
+
+        if(item === "ovo") {
+            estoque[item].quantidade = Math.round(estoque[item].quantidade);
+        }
+
+        if (!ingredientesGastos[item]) {
+            ingredientesGastos[item] = 0;
+        }
+
+        ingredientesGastos[item] += usado;
+        custoReposicao += usado * estoque[item].precoPorUnidade;
+    }
+
+    document.getElementById("custoTotal").innerText = custoReposicao.toFixed(2);
+    atualizarEstoque();
+    atualizarTabelaGastos();
+}
+
+function formatarNome(nome) {
+    const nomesBonitos = {
+        ovo: "Ovos",
+        acucar: "Açúcar",
+        leite: "Leite",
+        oleo: "Óleo",
+        achocolatado: "Achocolatado",
+        leitePo: "Leite em pó",
+        morango: "Morango",
+        leiteCondensado: "Leite Condensado",
+        margarina: "Margarina",
+        cremeDeLeite: "Creme de Leite",
+        massa: "Massa pronta",
+        granulado: "Granulado"
+    };
+    return nomesBonitos[nome] || nome;
+}
+
+function atualizarEstoque() {
+    let tbody = document.getElementById("estoqueInfo");
+    tbody.innerHTML = "";
+
+    for (let item in estoque) {
+        let quantidadeExibida = estoque[item].unidade === "un" 
+            ? Math.round(estoque[item].quantidade) 
+            : estoque[item].quantidade.toFixed(2);
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${formatarNome(item)}</td>
+                <td>${quantidadeExibida} ${estoque[item].unidade}</td>
+            </tr>
+        `;
+    }
+}
+
+function atualizarTabelaGastos() {
+    let tbody = document.getElementById("tabelaGastos");
+    tbody.innerHTML = "";
+
+    for (let item in ingredientesGastos) {
+        let gastoExibido = estoque[item].unidade === "un" 
+            ? Math.round(ingredientesGastos[item]) 
+            : ingredientesGastos[item].toFixed(2);
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${formatarNome(item)}</td>
+                <td>${gastoExibido} ${estoque[item].unidade}</td>
+            </tr>
+        `;
+    }
+}
+
+/* =========================
+   GERAR EFEITOS VISUAIS
+========================= */
+function criarEfeitos() {
+    const areaEfeitos = document.querySelector('.efeitos');
+    const itens = ['🍓', '⚪', '🧁']; 
+
+    setInterval(() => {
+        const elemento = document.createElement('div');
+        const tipo = Math.random();
+
+        if (tipo > 0.8) {
+            elemento.className = 'morango';
+            elemento.innerText = '🍓';
+        } else {
+            elemento.className = 'luz';
+        }
+
+        elemento.style.left = Math.random() * 100 + "vw";
+        elemento.style.animationDuration = (Math.random() * 3 + 5) + "s";
+
+        areaEfeitos.appendChild(elemento);
+
+        setTimeout(() => {
+            elemento.remove();
+        }, 80000);
+    }, 500); 
+}
+
+/* =========================
+   INICIALIZAÇÃO E OUTROS
+========================= */
+window.onload = function() {
+    carregarAvaliacoes();
+    atualizarEstoque();
+    atualizarTabelaGastos();
+    criarEfeitos();
+};
+
+function verificarLocal() {
+    let local = document.getElementById("localEntrega").value;
+    let campoEscola = document.getElementById("campoEscola");
+    let campoEndereco = document.getElementById("campoEndereco");
+    let campoRetirada = document.getElementById("campoRetirada");
+
+    campoEscola.classList.add("hidden");
+    campoEndereco.classList.add("hidden");
+    campoRetirada.classList.add("hidden");
+
+    if (local === "Escola") {
+        campoEscola.classList.remove("hidden");
+    } else if (local === "Casa") {
+        campoEndereco.classList.remove("hidden");
+    } else if (local === "Para retirar") {
+        campoRetirada.classList.remove("hidden");
+    }
+}
+</script>
+
+<footer class="rodape">
+    © 2026 | Desenvolvido por 
+    <a href="#" class="autor">Pedro lindoso</a> 🚀  
+    <br>
+    Desenvolvedor Front-End em evolução 💻✨
+</footer>
+
+<div class="efeitos"></div>
+
+</body>
+</html>
